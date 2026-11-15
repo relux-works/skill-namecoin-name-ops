@@ -39,8 +39,14 @@ def p2pkh(h160: str) -> dict:
             "type": "pubkeyhash"}
 
 
+def label_address(label: str) -> str:
+    return p2pkh(label_h160(label))["address"]
+
+
 NAME = "id/example"
 RAND = hashlib.sha256(b"synthetic-rand").hexdigest()[:40]
+if __name__ != "__main__":
+    raise SystemExit  # imported as a library: only the helpers above are used
 owner_h, change_h = label_h160("synthetic-owner"), label_h160("synthetic-change")
 commit = chk.hash160(bytes.fromhex(RAND) + NAME.encode())
 name_spk = p2pkh(owner_h)

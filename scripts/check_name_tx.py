@@ -22,6 +22,8 @@ MAX_NAME_BYTES = 255   # Core rejects a longer name on reveal
 MAX_VALUE_BYTES = 520
 RAND_BYTES = 20        # namerawtransaction generates 20 bytes; Core rejects a longer reveal
 HEX64 = re.compile(r"[0-9a-f]{64}")
+MAX_AMOUNT = Decimal("21000000")  # above any Namecoin amount
+SAT = Decimal("0.00000001")
 
 
 class Refusal(Exception):
@@ -117,9 +119,15 @@ def amount(x, what):
     """A JSON number (never a string or bool), finite and not negative."""
     if isinstance(x, bool) or not isinstance(x, (int, Decimal)):
         raise Refusal(f"{what}_NOT_A_NUMBER: {x!r}")
-    d = Decimal(x)
-    if not d.is_finite() or d < 0:
-        raise Refusal(f"{what}_INVALID: {x!r}")
+    return bounded(Decimal(x), what, x)
+
+
+def bounded(d, what, shown):
+    """Finite, 0..21e6 and at most 8 decimals; refuses before any arithmetic can overflow."""
+    if not d.is_finite() or d < 0 or d > MAX_AMOUNT:
+        raise Refusal(f"{what}_INVALID: {shown!r}")
+    if d != d.quantize(SAT):
+        raise Refusal(f"{what}_PRECISION: {shown!r} has more than 8 decimals")
     return d
 
 
@@ -128,9 +136,7 @@ def cap(text, what):
         d = Decimal(text)
     except decimal.InvalidOperation as exc:
         raise Refusal(f"{what}_INVALID: {text!r}") from exc
-    if not d.is_finite() or d < 0:
-        raise Refusal(f"{what}_INVALID: {text!r}")
-    return d
+    return bounded(d, what, text)
 
 
 def outpoint(text):
@@ -283,7 +289,7 @@ def main(argv=None):
     except Refusal as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 1
-    except (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError, decimal.InvalidOperation) as exc:
+    except (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError, decimal.DecimalException) as exc:
         print(f"REFUSED: INPUT_UNREADABLE: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     return 0

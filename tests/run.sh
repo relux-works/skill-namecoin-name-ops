@@ -18,7 +18,16 @@ NAME=id/example
 RAND=33a50fe344d993d97cbb567a2ad6c28b4f561700
 OWNER=N3DuniLozu6e7RkYqp3M4czYo4fmeg88Bs
 CHANGE=NJ6m7tdDY1JXfZGHxnQF73CH2MCjAiKRyB
-STRANGER=NHPiXTkHryymQx1Pbu1JR1VbLqjxdbMjiL
+STRANGER=$(python3 -I - "$here/make_fixture.py" <<'PY'
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("mf", sys.argv[1]); mf = importlib.util.module_from_spec(spec)
+try:
+    spec.loader.exec_module(mf)
+except SystemExit:
+    pass
+print(mf.label_address("synthetic-stranger"))
+PY
+)
 base="--op name_new --name $NAME --owner-address $OWNER --name-vout 1 --change-address $CHANGE"
 
 # Derived synthetic fixtures (shape variants of the synthetic name_new).
@@ -59,6 +68,8 @@ tma("negfee", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":-0.0001}}}}]')
 tma("strfee", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":"0.0001"}}}}]')
 tma("nanfee", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":NaN}}}}]')
 tma("null", '[null]')
+tma("hugefee", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":1e1000000}}}}]')
+tma("finefee", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":0.000000001}}}}]')
 tma("two", f'[{{"txid":"{t}","allowed":true,"fees":{{"base":0.0001}}}},{{"txid":"{t}","allowed":true,"fees":{{"base":0.0001}}}}]')
 print(hashlib.sha256(b"x" * 520).hexdigest(), file=open(f"{tmp}/sha520", "w"))
 PY
@@ -121,6 +132,10 @@ refuse FEE_INVALID       $chk $tb "$tmp/tma_negfee.json" --max-fee 0.0005
 refuse FEE_NOT_A_NUMBER  $chk $tb "$tmp/tma_strfee.json" --max-fee 0.0005
 refuse INPUT_NONFINITE   $chk $tb "$tmp/tma_nanfee.json" --max-fee 0.0005
 refuse TMA_SHAPE         $chk $tb "$tmp/tma_null.json" --max-fee 0.0005
+refuse FEE_INVALID       $chk $tb "$tmp/tma_hugefee.json" --max-total 0.02
+refuse FEE_PRECISION     $chk $tb "$tmp/tma_finefee.json" --max-fee 0.0005
+refuse MAX_TOTAL_INVALID $chk $tb "$tmp/tma_ok.json" --max-total 1e1000000
+refuse MAX_FEE_PRECISION $chk $tb "$tmp/tma_ok.json" --max-fee 0.000500001
 refuse TMA_SHAPE         $chk $tb "$tmp/tma_two.json" --max-fee 0.0005
 
 # RIPEMD-160 fallback (OpenSSL 3 often lacks ripemd160 in hashlib).
