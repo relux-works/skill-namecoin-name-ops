@@ -1,0 +1,22 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  fixtures:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Python and hashlib ripemd160
+        run: python3 -I -c "import hashlib,sys,ssl; print(sys.version, ssl.OPENSSL_VERSION); print('ripemd160' in hashlib.algorithms_available)"
+      - name: Fixture tests
+        run: sh tests/run.sh

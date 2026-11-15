@@ -1,0 +1,47 @@
+{
+ "_comment": "SYNTHETIC test fixture, not a transaction: invented input, no signature, label-derived addresses",
+ "txid": "33da8379c2ea412f0e20ea064c1cc1c99017116a72abacc84f89c6e094b40a98",
+ "hash": "33da8379c2ea412f0e20ea064c1cc1c99017116a72abacc84f89c6e094b40a98",
+ "version": 28928,
+ "size": 248,
+ "vsize": 248,
+ "weight": 992,
+ "locktime": 0,
+ "vin": [
+  {
+   "txid": "1111111111111111111111111111111111111111111111111111111111111111",
+   "vout": 0,
+   "scriptSig": {
+    "asm": "",
+    "hex": ""
+   },
+   "sequence": 4294967293
+  }
+ ],
+ "vout": [
+  {
+   "value": 0.0843104,
+   "n": 0,
+   "scriptPubKey": {
+    "asm": "OP_DUP OP_HASH160 ec1a40547d68edd6c83bd1cdcc7b648282b67ffc OP_EQUALVERIFY OP_CHECKSIG",
+    "hex": "76a914ec1a40547d68edd6c83bd1cdcc7b648282b67ffc88ac",
+    "address": "NJ6m7tdDY1JXfZGHxnQF73CH2MCjAiKRyB",
+    "type": "pubkeyhash"
+   }
+  },
+  {
+   "value": 0.01,
+   "n": 1,
+   "scriptPubKey": {
+    "nameOp": {
+     "op": "name_new",
+     "hash": "179fa45ac7227580188f6e2eaf43d56c09bf7b15"
+    },
+    "asm": "OP_NAME_NEW 179fa45ac7227580188f6e2eaf43d56c09bf7b15 OP_2DROP OP_DUP OP_HASH160 48ea8359345789582db4a8ae23a603149a53a893 OP_EQUALVERIFY OP_CHECKSIG",
+    "hex": "5114179fa45ac7227580188f6e2eaf43d56c09bf7b156d76a91448ea8359345789582db4a8ae23a603149a53a89388ac",
+    "address": "N3DuniLozu6e7RkYqp3M4czYo4fmeg88Bs",
+    "type": "pubkeyhash"
+   }
+  }
+ ]
+}
